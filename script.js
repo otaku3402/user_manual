@@ -64,13 +64,14 @@ function slugify(text) {
 
   const io = new IntersectionObserver(entries => {
     entries.forEach(e => {
-      if (!e.isIntersecting) return;
-      const id = e.target.id;
-      links.forEach(l => l.classList.remove('active'));
-      const link = linkMap.get(id);
-      if (link) link.classList.add('active');
+      if (e.isIntersecting) {
+        const id = e.target.id;
+        links.forEach(l => l.classList.remove('active'));
+        const link = linkMap.get(id);
+        if (link) link.classList.add('active');
+      }
     });
-  }, { rootMargin: '0px 0px -70% 0px', threshold: 0.01 });
+  }, { rootMargin: '-40% 0px -40% 0px', threshold: 0.1 });
 
   headings.forEach(h => io.observe(h));
 
