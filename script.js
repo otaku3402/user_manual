@@ -29,7 +29,6 @@ function slugify(text) {
   const headings = Array.from(content.querySelectorAll('h2, h3'));
   const list = document.createElement('ul');
 
-  const idMap = new Map();
   function ensureId(h) {
     if (h.id) return h.id;
     let base = slugify(h.textContent || 'section');
@@ -60,15 +59,15 @@ function slugify(text) {
 
   // 현재 섹션 하이라이트
   const links = Array.from(tocEl.querySelectorAll('a'));
-  const map = new Map();
-  headings.forEach((h, i) => map.set(h.id, links[i]));
+  const linkMap = new Map();
+  headings.forEach((h, i) => linkMap.set(h.id, links[i]));
 
   const io = new IntersectionObserver(entries => {
     entries.forEach(e => {
       if (!e.isIntersecting) return;
       const id = e.target.id;
       links.forEach(l => l.classList.remove('active'));
-      const link = map.get(id);
+      const link = linkMap.get(id);
       if (link) link.classList.add('active');
     });
   }, { rootMargin: '0px 0px -70% 0px', threshold: 0.01 });
