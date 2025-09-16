@@ -175,3 +175,7 @@ aside.toc {
   .header-inner { margin-top: 12px; }
   .page-icon { width: 64px; height: 64px; font-size: 34px; }
 }
+
+:target {
+  scroll-margin-top: 84px;
+}
