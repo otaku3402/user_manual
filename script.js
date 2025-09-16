@@ -29,6 +29,8 @@ function slugify(text) {
   const headings = Array.from(content.querySelectorAll('h2, h3'));
   const list = document.createElement('ul');
 
+  const SCROLL_OFFSET = 84;
+
   function ensureId(h) {
     if (h.id) return h.id;
     let base = slugify(h.textContent || 'section');
@@ -51,7 +53,7 @@ function slugify(text) {
     li.appendChild(a);
     list.appendChild(li);
     // 스크롤 여백(앵커 상단 여백) 적용
-    h.style.scrollMarginTop = '84px';
+    h.style.scrollMarginTop = SCROLL_OFFSET + 'px';
   });
 
   tocEl.innerHTML = '';
@@ -62,21 +64,80 @@ function slugify(text) {
   const linkMap = new Map();
   headings.forEach((h, i) => linkMap.set(h.id, links[i]));
 
-  const io = new IntersectionObserver(entries => {
-    entries.forEach(e => {
-      if (e.isIntersecting) {
-        const id = e.target.id;
-        links.forEach(l => l.classList.remove('active'));
-        const link = linkMap.get(id);
-        if (link) link.classList.add('active');
-      }
-    });
-  }, { rootMargin: '-40% 0px -40% 0px', threshold: 0.1 });
+  const OFFSET = SCROLL_OFFSET;
 
-  headings.forEach(h => io.observe(h));
+  function setActiveById(id) {
+    links.forEach(l => l.classList.remove('active'));
+    const link = linkMap.get(id);
+    if (link) link.classList.add('active');
+  }
+
+  function currentHashId() {
+    return location.hash ? location.hash.slice(1) : '';
+  }
+
+  function setHashAndActive(id, usePush) {
+    if (!id) return;
+    const current = currentHashId();
+    if (current === id) {
+      setActiveById(id);
+      return;
+    }
+    const url = '#' + id;
+    if (usePush) history.pushState(null, '', url);
+    else history.replaceState(null, '', url);
+    setActiveById(id);
+  }
+
+  function updateActiveOnScroll() {
+    let bestId = null;
+    let bestDelta = -Infinity;
+    let nextId = null;
+    let nextDelta = Infinity;
+
+    for (const h of headings) {
+      const rect = h.getBoundingClientRect();
+      const delta = rect.top - OFFSET;
+      if (delta <= 0 && delta > bestDelta) {
+        bestDelta = delta;
+        bestId = h.id;
+      }
+      if (delta > 0 && delta < nextDelta) {
+        nextDelta = delta;
+        nextId = h.id;
+      }
+    }
+
+    const targetId = bestId || nextId || (headings[0] && headings[0].id);
+    if (targetId) setHashAndActive(targetId, false);
+  }
+
+  let ticking = false;
+  window.addEventListener('scroll', () => {
+    if (ticking) return;
+    ticking = true;
+    requestAnimationFrame(() => {
+      updateActiveOnScroll();
+      ticking = false;
+    });
+  }, { passive: true });
+  window.addEventListener('resize', updateActiveOnScroll);
 
   // 초기 활성화 상태 설정
-  if (links[0]) links[0].classList.add('active');
+  if (location.hash) {
+    const initId = location.hash.slice(1);
+    if (linkMap.has(initId)) {
+      setActiveById(initId);
+    } else {
+      updateActiveOnScroll();
+    }
+  } else {
+    updateActiveOnScroll();
+  }
+  window.addEventListener('hashchange', () => {
+    const id = location.hash.slice(1);
+    if (id) setActiveById(id);
+  });
 
   // 앵커 클릭 시 부드러운 스크롤 + 주소 해시 유지
   links.forEach(a => {
@@ -87,7 +148,7 @@ function slugify(text) {
       if (target) {
         ev.preventDefault();
         target.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        history.pushState(null, '', '#' + id);
+        setHashAndActive(id, true);
       }
     });
   });

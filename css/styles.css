@@ -112,21 +112,6 @@ main {
 }
 .callout .icon { font-size: 20px; line-height: 1; }
 
-details.toggle {
-  border: none;
-  border-radius: 0;
-  padding: 0;
-  background: transparent;
-  margin: 10px 0 14px;
-}
-details.toggle > summary {
-  cursor: pointer;
-  list-style: none;
-  font-weight: 600;
-}
-details.toggle > summary::-webkit-details-marker { display: none; }
-details.toggle[open] > summary { color: var(--accent); }
-
 .checklist { list-style: none; padding-left: 0; }
 .checklist li { display: flex; gap: 10px; align-items: flex-start; }
 .checklist input[type="checkbox"] { margin-top: 4px; }
@@ -179,3 +164,55 @@ aside.toc {
 :target {
   scroll-margin-top: 84px;
 }
+
+details.toggle {
+  border: none;
+  border-radius: 0;
+  padding: 0;
+  background: transparent;
+  margin: 10px 0 14px;
+}
+
+details.toggle > summary {
+  cursor: pointer;
+  list-style: none;
+  font-weight: 600;
+
+  color: inherit;
+  text-decoration: none;
+  user-select: none;
+
+  position: relative;
+  padding-left: 1.2em;
+}
+
+details.toggle > summary::-webkit-details-marker {
+  display: none;
+}
+
+details.toggle > summary::before {
+  content: "▶";
+  position: absolute;
+  left: 0;
+  top: 0;
+  transition: transform 0.2s ease;
+  font-size: 0.9em;
+}
+
+details.toggle[open] > summary::before {
+  transform: rotate(90deg);
+}
+
+details.toggle {
+  border: none;
+  border-radius: 0;
+  padding: 0;
+  background: transparent;
+  margin: 10px 0 14px;
+}
+details.toggle > summary {
+  cursor: pointer;
+  list-style: none;
+  font-weight: 600;
+}
+details.toggle > summary::-webkit-details-marker { display: none; }
