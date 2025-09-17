@@ -164,3 +164,19 @@ function slugify(text) {
     history.pushState(null, '', '#');
   });
 })();
+
+// 10덕대장경 내 등급별 리스트 가나다(ko) 자동 정렬
+(function sortAnimeLists() {
+  // 대상: #content 하위의 details.toggle 중 직접 자식으로 <ol>을 가진 요소들(S/A/B/C/D)
+  const lists = document.querySelectorAll('#content details.toggle > ol');
+  if (!lists.length) return;
+
+  const collator = new Intl.Collator('ko', { sensitivity: 'base', numeric: true });
+  const norm = (t) => (t || '').replace(/\s+/g, ' ').trim();
+
+  lists.forEach((ol) => {
+    const items = Array.from(ol.querySelectorAll('li'));
+    items.sort((a, b) => collator.compare(norm(a.textContent), norm(b.textContent)));
+    items.forEach((li) => ol.appendChild(li));
+  });
+})();
