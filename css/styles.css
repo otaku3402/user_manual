@@ -216,3 +216,7 @@ details.toggle > summary {
   font-weight: 600;
 }
 details.toggle > summary::-webkit-details-marker { display: none; }
+
+.content > details.toggle {
+  margin-bottom: 28px;
+}
